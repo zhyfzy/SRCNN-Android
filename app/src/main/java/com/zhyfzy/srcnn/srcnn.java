@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,31 +86,31 @@ public class srcnn extends Activity implements View.OnClickListener{
     }
 
     public void saveMyBitmap(Bitmap mBitmap, String bitName){
-        File f = new File(Environment.getExternalStorageDirectory() + "/" +  bitName + ".png");
-        Log.i(" ", f.getAbsolutePath());
         try {
-            f.createNewFile();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-        }
-        FileOutputStream fOut = null;
-        try {
-            fOut = new FileOutputStream(f);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-        try {
-            fOut.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            fOut.close();
+            Log.i(" ","...point1");
+            File newFile = new File(Environment.getExternalStorageDirectory() + "/SRCNN-Android/" +  bitName + ".png");
+            if (!newFile.getParentFile().exists()){
+                boolean mkdirStatus = newFile.getParentFile().mkdirs();
+            }
+            if (newFile.exists()){
+                boolean deleteStatus = newFile.delete();
+            }
+            Log.i(" ","...point2");
+            boolean fileCreateStatus = newFile.createNewFile();
+            Log.i(" ",newFile.getAbsolutePath());
+            FileOutputStream fos = new FileOutputStream(newFile.getAbsolutePath());
+            Log.i(" ","...point3");
+            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            Log.i(" ","...point4");
+            fos.flush();
+            fos.close();
+
+            Log.i(" ","...point5");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     private class threadSrcnn implements Runnable{
         @Override
         public void run() {
@@ -120,12 +119,14 @@ public class srcnn extends Activity implements View.OnClickListener{
                 Bitmap image = BitmapFactory.decodeStream(stream);
                 imageProcessor.loadBitmap(image);
                 Bitmap resultBitmap = imageProcessor.srcnnProcess();
+                Log.i(" ","...point1");
+                saveMyBitmap(resultBitmap, "output");
+                Log.i(" ","...point6");
                 Message msg = Message.obtain();
                 msg.obj = resultBitmap;
                 msg.what = 0;
                 handleSrcnn.sendMessage(msg);
-
-            }catch(IOException e){
+            }catch(IOException e) {
                 e.getStackTrace();
             }
         }
@@ -136,7 +137,6 @@ public class srcnn extends Activity implements View.OnClickListener{
         public void handleMessage(Message msg){
             Bitmap resultBitmap = (Bitmap)msg.obj;
             imageViewProcessedImage.setImageBitmap(resultBitmap);
-            saveMyBitmap(resultBitmap, "Output");
             progressDialog.dismiss();
         }
     };
