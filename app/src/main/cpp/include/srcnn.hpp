@@ -21,10 +21,9 @@ using namespace cv;
 /* Marco Definition */
 #define IMAGE_WIDTH		960		// the image width
 #define IMAGE_HEIGHT		540		// the image height
-#define UP_SCALE		2		// the scale of super-resolution
 #define CONV1_FILTERS		64		// the first convolutional layer
 #define CONV2_FILTERS		32		// the second convolutional layer
-#define DEBUG			1		// show the debug info
+//#define DEBUG			1		// show the debug info
 //#define DISPLAY			0		// display the temp image
 //#define SAVE			0		// save the temp image
 //#define CUBIC			1
@@ -43,7 +42,7 @@ void Convolution55(vector<Mat>& src, Mat& dst, float kernel[32][5][5], float bia
  * Parameter	: pImgOrigin -- the input image.
  * Output	: pImgBGROut -- the output image.
 ***/
-Mat srcnn(Mat pImgOrigin)
+Mat srcnn(Mat pImgOrigin, int upScale)
 {
 	/* Read the original image */
     __android_log_print(ANDROID_LOG_INFO,"JNI","Read the Original Image Successfully ...");
@@ -75,7 +74,7 @@ Mat srcnn(Mat pImgOrigin)
 	vector<Mat> pImg(3);
 	for (int i = 0; i < 3; i++)
 	{
-		resize(pImgYCrCbCh[i], pImg[i], pImgYCrCbCh[i].size()*UP_SCALE, 0, 0, CV_INTER_CUBIC);
+		resize(pImgYCrCbCh[i], pImg[i], pImgYCrCbCh[i].size()*upScale, 0, 0, CV_INTER_CUBIC);
 	}
 #ifdef DISPLAY
 	imshow("LumaCubic", pImg[0]);
@@ -90,7 +89,7 @@ Mat srcnn(Mat pImgOrigin)
 #ifdef CUBIC
 	/* Output the Cubic Inter Result (Optional) */
 	Mat pImgCubic;
-	resize(pImgYCrCb, pImgCubic, pImgYCrCb.size()*UP_SCALE, 0, 0, CV_INTER_CUBIC);
+	resize(pImgYCrCb, pImgCubic, pImgYCrCb.size()*upScale, 0, 0, CV_INTER_CUBIC);
 	cvtColor(pImgCubic, pImgCubic, CV_YCrCb2BGR);
 #ifdef DISPLAY
 	imshow("Cubic", pImgCubic);

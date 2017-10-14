@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -87,7 +88,6 @@ public class srcnn extends Activity implements View.OnClickListener{
 
     public void saveMyBitmap(Bitmap mBitmap, String bitName){
         try {
-            Log.i(" ","...point1");
             File newFile = new File(Environment.getExternalStorageDirectory() + "/SRCNN-Android/" +  bitName + ".png");
             if (!newFile.getParentFile().exists()){
                 boolean mkdirStatus = newFile.getParentFile().mkdirs();
@@ -95,17 +95,11 @@ public class srcnn extends Activity implements View.OnClickListener{
             if (newFile.exists()){
                 boolean deleteStatus = newFile.delete();
             }
-            Log.i(" ","...point2");
             boolean fileCreateStatus = newFile.createNewFile();
-            Log.i(" ",newFile.getAbsolutePath());
             FileOutputStream fos = new FileOutputStream(newFile.getAbsolutePath());
-            Log.i(" ","...point3");
             mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            Log.i(" ","...point4");
             fos.flush();
             fos.close();
-
-            Log.i(" ","...point5");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -119,9 +113,7 @@ public class srcnn extends Activity implements View.OnClickListener{
                 Bitmap image = BitmapFactory.decodeStream(stream);
                 imageProcessor.loadBitmap(image);
                 Bitmap resultBitmap = imageProcessor.srcnnProcess();
-                Log.i(" ","...point1");
                 saveMyBitmap(resultBitmap, "output");
-                Log.i(" ","...point6");
                 Message msg = Message.obtain();
                 msg.obj = resultBitmap;
                 msg.what = 0;
@@ -138,6 +130,7 @@ public class srcnn extends Activity implements View.OnClickListener{
             Bitmap resultBitmap = (Bitmap)msg.obj;
             imageViewProcessedImage.setImageBitmap(resultBitmap);
             progressDialog.dismiss();
+            Toast.makeText(srcnn.this, "Output file has been stored at " + Environment.getExternalStorageDirectory() + "/SRCNN-Android/output.png", Toast.LENGTH_LONG).show();
         }
     };
 }
